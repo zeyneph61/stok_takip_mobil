@@ -39,7 +39,7 @@ static Future<void> updateProduct(int id, Map<String, dynamic> data) async {
   print("UPDATE STATUS CODE: ${response.statusCode}");
   print("UPDATE RESPONSE BODY: ${response.body}");
 
-  // Backend 204 döndürüyor → Bu başarılıdır
+  // Backend 204 döndürüyor → Bu başarılıdı
   if (response.statusCode == 200 || response.statusCode == 204) {
     return; // BAŞARILI
   }

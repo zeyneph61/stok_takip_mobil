@@ -18,7 +18,7 @@ class CustomCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(10), // <-- DÜZELTME (0.04 * 255 = 10)
+            color: Colors.black.withAlpha(10), // <-- DÜZELTME
             blurRadius: 2,
             offset: const Offset(0, 1),
           ),

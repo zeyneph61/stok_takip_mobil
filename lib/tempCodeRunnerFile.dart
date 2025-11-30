@@ -1,7 +1,7 @@
 // lib/main.dart
 
 import 'package:flutter/material.dart';
-import 'screens/dashboard_screen.dart'; // YENİ IMPORT
+import 'screens/dashboard_screen.dart'; // YENİ IMPOR
 
 void main() {
   runApp(const MyApp());

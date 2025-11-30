@@ -35,9 +35,9 @@ class Product {
       sellPrice: (json['sellPrice'] ).toDouble(), 
       quantity: json['quantity'] , 
       thresholdValue: json['thresholdValue'] , 
-      expiryDate: json['expiryDate'], // Bu zaten null olabilir 
+      expiryDate: json['expiryDate'], // Bu zaten null olabili
       availability: json['availability'] ?? 'Unknown', // null ise 'Unknown' ata 
-      soldLastMonth: json['soldLastMonth'] ?? 0, // null ise 0 ata
+      soldLastMonth: json['soldLastMonth'] ?? 0, // null ise 0 at
     );
   }
 }

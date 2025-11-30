@@ -3,10 +3,10 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
-import '../models/product.dart'; // YENİ IMPORT
+import '../models/product.dart';
 
 class ProductService {
-  // Android emülatör için 10.0.2.2, fiziksel cihaz için gerçek IP kullanın
+  // Android emülatör için 10.0.2.2
   static const String baseUrl = 'http://10.0.2.2:5000/api/Product';
 
   static Future<List<Product>> getProducts() async {
