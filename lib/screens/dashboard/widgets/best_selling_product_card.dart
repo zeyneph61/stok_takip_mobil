@@ -51,8 +51,8 @@ class BestSellingProductCard extends StatelessWidget {
         columnSpacing: 16,
         horizontalMargin: 0,
         headingRowHeight: 40,
-        dataRowMinHeight: 48,  // <-- YENİ
-        dataRowMaxHeight: 48,  // <-- YENİ
+        dataRowMinHeight: 48,  
+        dataRowMaxHeight: 48,  
         dividerThickness: 1,
         border: TableBorder(
           horizontalInside: BorderSide(color: const Color(0xFFF0F1F3)),

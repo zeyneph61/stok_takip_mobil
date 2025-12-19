@@ -1,7 +1,7 @@
 // lib/screens/dashboard/widgets/best_selling_category_card.dart
 
 import 'package:flutter/material.dart';
-import '../../../widgets/common/custom_card.dart'; // Ortak Card'ı import et
+import '../../../widgets/common/custom_card.dart'; // Ortak Card' import et
 
 class BestSellingCategoryCard extends StatelessWidget {
   final List<MapEntry<String, Map<String, dynamic>>> topCategories;

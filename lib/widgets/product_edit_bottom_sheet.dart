@@ -888,7 +888,7 @@ class _ProductEditBottomSheetState extends State<ProductEditBottomSheet>
       if (!mounted) return;
       Navigator.pop(context);
       widget.onProductSaved();
-      // Başarı bildirimi (Add Product ile aynı davranış)
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Ürün başarıyla güncellendi'),
