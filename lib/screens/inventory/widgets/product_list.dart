@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../models/product.dart'; // Product modelini import et
 import '../../../widgets/common/custom_card.dart'; // Ortak Card'ı import et
 
-class ProductList extends StatelessWidget {
+class ProductList extends StatefulWidget {
   final List<Product> products;
   final List<Product> paginatedProducts;
   final int currentInventoryPage;
@@ -27,6 +27,62 @@ class ProductList extends StatelessWidget {
   });
 
   @override
+  State<ProductList> createState() => _ProductListState();
+}
+
+class _ProductListState extends State<ProductList> {
+  final TextEditingController _searchController = TextEditingController();
+  List<Product> _filteredProducts = [];
+
+  // Türkçe karakterleri düzgün küçük harfe çeviren yardımcı fonksiyon
+  String _turkishToLower(String text) {
+    return text
+        .replaceAll('I', 'ı')
+        .replaceAll('İ', 'i')
+        .replaceAll('Ç', 'ç')
+        .replaceAll('Ş', 'ş')
+        .replaceAll('Ğ', 'ğ')
+        .replaceAll('Ü', 'ü')
+        .replaceAll('Ö', 'ö')
+        .toLowerCase();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredProducts = widget.paginatedProducts;
+  }
+
+  @override
+  void didUpdateWidget(ProductList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.paginatedProducts != widget.paginatedProducts) {
+      _filterProducts(_searchController.text);
+    }
+  }
+
+  void _filterProducts(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredProducts = widget.paginatedProducts;
+      } else {
+        final queryLower = _turkishToLower(query);
+        // Tüm ürünlerde ara, sadece sayfalanmış ürünlerde değil
+        _filteredProducts = widget.products.where((product) {
+          return _turkishToLower(product.name).contains(queryLower) ||
+              _turkishToLower(product.category).contains(queryLower);
+        }).toList();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return CustomCard(
       child: Column(
@@ -46,13 +102,13 @@ class ProductList extends StatelessWidget {
               Row(
                 children: [
                   IconButton(
-                    onPressed: onRefresh,
+                    onPressed: widget.onRefresh,
                     icon: const Icon(Icons.refresh),
                     color: const Color(0xFF1366D9),
                     tooltip: 'Refresh',
                   ),
                   ElevatedButton(
-                    onPressed: () => onShowProductModal(null),
+                    onPressed: () => widget.onShowProductModal(null),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1366D9),
                       foregroundColor: Colors.white,
@@ -76,13 +132,67 @@ class ProductList extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          // Display paginated products from API
-          if (products.isEmpty)
+          // Search Bar
+          SizedBox(
+            height: 48,
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                _filterProducts(value);
+                setState(() {});
+              },
+              decoration: InputDecoration(
+                hintText: 'Search products...',
+                hintStyle: const TextStyle(
+                  color: Color(0xFF858D9D),
+                  fontSize: 14,
+                ),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: Color(0xFF858D9D),
+                  size: 20,
+                ),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, size: 18),
+                        onPressed: () {
+                          setState(() {
+                            _searchController.clear();
+                            _filterProducts('');
+                          });
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: const Color(0xFFF0F1F3),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Color(0xFF1366D9), width: 1),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 0,
+                ),
+                isDense: true,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Display filtered products
+          if (_filteredProducts.isEmpty)
             const Center(
               child: Padding(
                 padding: EdgeInsets.all(40),
                 child: Text(
-                  'Henüz ürün bulunamadı',
+                  'No products found',
                   style: TextStyle(
                     fontSize: 16,
                     color: Color(0xFF667085),
@@ -91,12 +201,12 @@ class ProductList extends StatelessWidget {
               ),
             )
           else
-            ...paginatedProducts
+            ..._filteredProducts
                 .map((product) => _buildApiProductCard(product, context)),
 
-          if (products.isNotEmpty) ...[
+          if (widget.products.isNotEmpty && _searchController.text.isEmpty) ...[
             const SizedBox(height: 16),
-            // Pagination Controls
+            // Pagination Controls (only show when not searching)
             _buildPaginationControls(),
           ],
         ],
@@ -110,16 +220,16 @@ class ProductList extends StatelessWidget {
       children: [
         // Before Button
         TextButton(
-          onPressed: currentInventoryPage > 1 ? onPreviousPage : null,
+          onPressed: widget.currentInventoryPage > 1 ? widget.onPreviousPage : null,
           style: TextButton.styleFrom(
-            foregroundColor: currentInventoryPage > 1
+            foregroundColor: widget.currentInventoryPage > 1
                 ? const Color(0xFF1570EF)
                 : const Color(0xFF9CA3AF),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6),
               side: BorderSide(
-                color: currentInventoryPage > 1
+                color: widget.currentInventoryPage > 1
                     ? const Color(0xFF1570EF)
                     : const Color(0xFF9CA3AF),
                 width: 1,
@@ -144,7 +254,7 @@ class ProductList extends StatelessWidget {
             border: Border.all(color: const Color(0xFFE5E7EB)),
           ),
           child: Text(
-            'Page $currentInventoryPage / $totalPages',
+            'Page ${widget.currentInventoryPage} / ${widget.totalPages}',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -155,16 +265,16 @@ class ProductList extends StatelessWidget {
 
         // After Button
         TextButton(
-          onPressed: currentInventoryPage < totalPages ? onNextPage : null,
+          onPressed: widget.currentInventoryPage < widget.totalPages ? widget.onNextPage : null,
           style: TextButton.styleFrom(
-            foregroundColor: currentInventoryPage < totalPages
+            foregroundColor: widget.currentInventoryPage < widget.totalPages
                 ? const Color(0xFF1570EF)
                 : const Color(0xFF9CA3AF),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6),
               side: BorderSide(
-                color: currentInventoryPage < totalPages
+                color: widget.currentInventoryPage < widget.totalPages
                     ? const Color(0xFF1570EF)
                     : const Color(0xFF9CA3AF),
                 width: 1,
@@ -199,7 +309,7 @@ class ProductList extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () => onShowProductModal(product),
+      onTap: () => widget.onShowProductModal(product),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(

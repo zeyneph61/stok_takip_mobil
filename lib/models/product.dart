@@ -28,16 +28,20 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['id'], 
-      name: json['name'], 
-      category: json['category'], 
-      buyingPrice: (json['buyingPrice'] ).toDouble(), 
-      sellPrice: (json['sellPrice'] ).toDouble(), 
-      quantity: json['quantity'] , 
-      thresholdValue: json['thresholdValue'] , 
-      expiryDate: json['expiryDate'], // Bu zaten null olabili
-      availability: json['availability'] ?? 'Unknown', // null ise 'Unknown' ata 
-      soldLastMonth: json['soldLastMonth'] ?? 0, // null ise 0 at
+      id: json['id'] as int, 
+      name: json['name'] as String, 
+      category: json['category'] as String, 
+      buyingPrice: json['buyingPrice'] != null 
+          ? (json['buyingPrice'] as num).toDouble() 
+          : 0.0, 
+      sellPrice: json['sellPrice'] != null 
+          ? (json['sellPrice'] as num).toDouble() 
+          : 0.0, 
+      quantity: json['quantity'] as int? ?? 0, 
+      thresholdValue: json['thresholdValue'] as int? ?? 0, 
+      expiryDate: json['expiryDate'] as String?, 
+      availability: json['availability'] as String? ?? 'Unknown', 
+      soldLastMonth: json['soldLastMonth'] as int? ?? 0,
     );
   }
 }

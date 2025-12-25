@@ -2,12 +2,15 @@
 
 import 'dart:convert';
 import 'dart:developer' as developer;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import '../models/product.dart';
 
 class ProductService {
-  // Android emülatör için 10.0.2.2
-  static const String baseUrl = 'http://10.0.2.2:5000/api/Product';
+  // Web için localhost, Android emülatör için 10.0.2.2
+  static String get baseUrl => kIsWeb 
+      ? 'http://localhost:5000/api/Product'
+      : 'http://10.0.2.2:5000/api/Product';
 
   static Future<List<Product>> getProducts() async {
     try {

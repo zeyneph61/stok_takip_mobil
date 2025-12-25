@@ -88,6 +88,19 @@ class _ProductEditBottomSheetState extends State<ProductEditBottomSheet>
     });
   }
 
+  // Türkçe karakterleri düzgün küçük harfe çeviren yardımcı fonksiyon
+  String _turkishToLower(String text) {
+    return text
+        .replaceAll('I', 'ı')
+        .replaceAll('İ', 'i')
+        .replaceAll('Ç', 'ç')
+        .replaceAll('Ş', 'ş')
+        .replaceAll('Ğ', 'ğ')
+        .replaceAll('Ü', 'ü')
+        .replaceAll('Ö', 'ö')
+        .toLowerCase();
+  }
+
   Future<void> _searchProducts(String query) async {
     if (query.trim().isEmpty) {
       setState(() {
@@ -102,8 +115,11 @@ class _ProductEditBottomSheetState extends State<ProductEditBottomSheet>
     try {
       final products = await ProductService.getProducts();
       final filteredProducts = products
-          .where((product) =>
-              product.name.toLowerCase().contains(query.toLowerCase()))
+          .where((product) {
+            final nameLower = _turkishToLower(product.name);
+            final queryLower = _turkishToLower(query);
+            return nameLower.contains(queryLower);
+          })
           .toList();
 
       setState(() {
