@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../services/product_service.dart';
+import '../services/dashboard_service.dart';
 import '../widgets/product_edit_bottom_sheet.dart';
 import '../widgets/common/app_drawer.dart';
 import './dashboard/dashboard_tab.dart';
@@ -23,24 +24,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // API Data
   List<Product> _products = [];
+  DashboardStats? _dashboardStats;
   bool _isLoading = false;
   String? _error;
 
   // Pagination variables
   int _currentInventoryPage = 1;
   final int _itemsPerPage = 5;
-  // Not: _totalPages'ı Inventory'ye taşımadan önce
-  // _products'ın boş olup olmadığını kontrol etmek iyi bir fikir.
   int get _totalPages =>
       _products.isEmpty ? 1 : (_products.length / _itemsPerPage).ceil();
-
-  // KULLANILMAYAN SABİT VERİLER SİLİNDİ
 
   @override
   void initState() {
     super.initState();
     _currentPage = widget.initialPage;
-    _loadProducts();
+    if (_currentPage == 'dashboard') {
+      _loadDashboardData();
+    } else {
+      _loadProducts();
+    }
+  }
+  
+  Future<void> _loadDashboardData() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final stats = await DashboardService.getDashboardStats();
+      setState(() {
+        _dashboardStats = stats;
+        _products = stats.products; // Products'ı da güncelle
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _loadProducts() async {
@@ -81,10 +104,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ? DashboardTab(
                         isLoading: _isLoading,
                         error: _error,
-                        products: _products,
-                        onRefresh: _loadProducts,
+                        dashboardStats: _dashboardStats,
+                        onRefresh: _loadDashboardData,
                       )
-                    : _buildInventoryContent(), // Henüz buna dokunmadık
+                    : _buildInventoryContent(),
               ),
             ),
           ],

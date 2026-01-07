@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 class SummaryCardsGrid extends StatelessWidget {
   final int totalQuantity;
   final int totalProducts;
+  final int totalCategories;
+  final int aboutToExpire;
   final int lowStockCount;
   final int outOfStockCount;
 
@@ -12,43 +14,63 @@ class SummaryCardsGrid extends StatelessWidget {
     super.key,
     required this.totalQuantity,
     required this.totalProducts,
+    required this.totalCategories,
+    required this.aboutToExpire,
     required this.lowStockCount,
     required this.outOfStockCount,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 1.2,
+    return Column(
       children: [
-        _buildSummaryCard(
-          title: 'Inventory Summary',
-          value: totalQuantity.toString(),
-          label: 'Quantity in Hand',
-          valueColor: const Color(0xFF845EBC),
+        // İlk satır: 2 kart
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.2,
+          children: [
+            _buildSummaryCard(
+              title: 'Inventory Summary',
+              value: totalQuantity.toString(),
+              label: 'Quantity in Hand',
+              valueColor: const Color(0xFF845EBC),
+            ),
+            _buildSummaryCard(
+              title: 'About to Expire',
+              value: aboutToExpire.toString(),
+              label: 'Products Expiring Soon',
+              valueColor: const Color(0xFFDBA362),
+            ),
+          ],
         ),
-        _buildSummaryCard(
-          title: 'Product Summary',
-          value: totalProducts.toString(),
-          label: 'Number of Products',
-          valueColor: const Color(0xFFDBA362),
-        ),
-        _buildSummaryCard(
-          title: 'Low Stock',
-          value: lowStockCount.toString(),
-          label: 'Items Below Threshold',
-          valueColor: const Color(0xFFF36960),
-        ),
-        _buildSummaryCard(
-          title: 'Out of Stock',
-          value: outOfStockCount.toString(),
-          label: '0 Remaining Items',
-          valueColor: const Color(0xFF1570EF),
+        const SizedBox(height: 12),
+        
+        // İkinci satır: 2 kart
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.2,
+          children: [
+            _buildSummaryCard(
+              title: 'Low Stock',
+              value: lowStockCount.toString(),
+              label: 'Items Below Threshold',
+              valueColor: const Color(0xFFF36960),
+            ),
+            _buildSummaryCard(
+              title: 'Out of Stock',
+              value: outOfStockCount.toString(),
+              label: '0 Remaining Items',
+              valueColor: const Color(0xFF1570EF),
+            ),
+          ],
         ),
       ],
     );

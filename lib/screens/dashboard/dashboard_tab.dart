@@ -1,24 +1,25 @@
 // lib/screens/dashboard/dashboard_tab.dart
 
 import 'package:flutter/material.dart';
-import '../../models/product.dart'; // Model importu
+import '../../services/dashboard_service.dart';
 
 // Yeni ayırdığımız widget'ları import ediyoruz
 import 'widgets/summary_cards_grid.dart';
 import 'widgets/best_selling_category_card.dart';
 import 'widgets/best_selling_product_card.dart';
+import 'widgets/total_categories_card.dart';
 
 class DashboardTab extends StatelessWidget {
   final bool isLoading;
   final String? error;
-  final List<Product> products;
-  final VoidCallback onRefresh; // Yenileme butonu için fonksiyon
+  final DashboardStats? dashboardStats; // Product yerine DashboardStats
+  final VoidCallback onRefresh;
 
   const DashboardTab({
     super.key,
     required this.isLoading,
     this.error,
-    required this.products,
+    this.dashboardStats,
     required this.onRefresh,
   });
 
@@ -74,16 +75,14 @@ class DashboardTab extends StatelessWidget {
       );
     }
 
-    // --- Hesaplamalar ana widget'ta yapılır ---
-    
-    // Özet Kartları için hesaplamalar
-    final totalProducts = products.length;
-    final totalQuantity =
-        products.fold(0, (sum, product) => sum + product.quantity);
-    final lowStockCount = products
-        .where((p) => p.quantity <= p.thresholdValue && p.quantity > 0)
-        .length;
-    final outOfStockCount = products.where((p) => p.quantity == 0).length;
+    if (dashboardStats == null) {
+      return const Center(
+        child: Text('Veri bulunamadı'),
+      );
+    }
+
+    final stats = dashboardStats!;
+    final products = stats.products;
 
     // En Çok Satan Ürünler için hesaplama
     final bestSellingProducts = [...products]
@@ -91,18 +90,7 @@ class DashboardTab extends StatelessWidget {
     final topProducts = bestSellingProducts.take(3).toList();
 
     // En Çok Satan Kategoriler için hesaplama
-    final categoryStats = <String, Map<String, dynamic>>{};
-    for (final product in products) {
-      if (!categoryStats.containsKey(product.category)) {
-        categoryStats[product.category] = {
-          'totalSold': 0,
-          'profit': 0.0,
-        };
-      }
-      categoryStats[product.category]!['totalSold'] += product.soldLastMonth;
-      categoryStats[product.category]!['profit'] +=
-          (product.sellPrice - product.buyingPrice) * product.soldLastMonth;
-    }
+    final categoryStats = DashboardService.calculateCategoryStats(products);
     final topCategories = categoryStats.entries.toList()
       ..sort((a, b) =>
           (b.value['profit'] as double).compareTo(a.value['profit'] as double));
@@ -110,28 +98,36 @@ class DashboardTab extends StatelessWidget {
     // --- Build metodu artık ÇOK TEMİZ ---
     return Column(
       children: [
-        // 1. Parça
+        // 1. Parça - Summary Cards
         SummaryCardsGrid(
-          totalQuantity: totalQuantity,
-          totalProducts: totalProducts,
-          lowStockCount: lowStockCount,
-          outOfStockCount: outOfStockCount,
+          totalQuantity: stats.totalQuantity,
+          totalProducts: stats.totalProducts,
+          totalCategories: stats.totalCategories,
+          aboutToExpire: stats.aboutToExpire,
+          lowStockCount: stats.lowStock,
+          outOfStockCount: stats.outOfStock,
         ),
         const SizedBox(height: 16),
 
-        // 2. Parça
+        // 2. Parça - Total Categories (Yeni!)
+        TotalCategoriesCard(
+          totalCategories: stats.totalCategories,
+          categories: stats.categories,
+        ),
+        const SizedBox(height: 16),
+
+        // 3. Parça - Best Selling Category
         BestSellingCategoryCard(
           topCategories: topCategories,
           onRefresh: onRefresh,
         ),
         const SizedBox(height: 16),
 
-        // 3. Parça
+        // 4. Parça - Best Selling Product
         BestSellingProductCard(
           topProducts: topProducts,
         ),
       ],
     );
   }
-
 }
