@@ -10,6 +10,9 @@ class InventoryTab extends StatelessWidget {
   final bool isLoading;
   final String? error;
   final List<Product> products;
+  final int totalCategories;
+  final int lowStockCount;
+  final int outOfStockCount;
   final int currentInventoryPage;
   final int totalPages;
   final VoidCallback onRefresh;
@@ -25,6 +28,9 @@ class InventoryTab extends StatelessWidget {
     required this.isLoading,
     this.error,
     required this.products,
+    required this.totalCategories,
+    required this.lowStockCount,
+    required this.outOfStockCount,
     required this.currentInventoryPage,
     required this.totalPages,
     required this.onRefresh,
@@ -106,13 +112,8 @@ class InventoryTab extends StatelessWidget {
 
     // Genel Envanter Kartı için
     final totalProducts = products.length;
-    final lowStockCount = products
-        .where((p) => p.quantity <= p.thresholdValue && p.quantity > 0)
-        .length;
-    final outOfStockCount = products.where((p) => p.quantity == 0).length;
     final totalQuantity =
         products.fold(0, (sum, product) => sum + product.quantity);
-    final categories = products.map((p) => p.category).toSet().length;
     final monthlyRevenue = products.fold(
         0.0, (sum, p) => sum + (p.sellPrice * p.soldLastMonth));
 
@@ -121,7 +122,7 @@ class InventoryTab extends StatelessWidget {
       children: [
         // 1. Parça
         OverallInventoryCard(
-          categories: categories,
+          categories: totalCategories,
           totalProducts: totalProducts,
           totalQuantity: totalQuantity,
           monthlyRevenue: monthlyRevenue,

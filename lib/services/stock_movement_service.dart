@@ -2,15 +2,22 @@
 
 import 'dart:convert';
 import 'dart:developer' as developer;
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import '../models/stock_movement.dart';
 
 class StockMovementService {
-  // Web için localhost, Android emülatör için 10.0.2.2
-  static String get baseUrl => kIsWeb 
-      ? 'http://localhost:5000/api/StockMovement'
-      : 'http://10.0.2.2:5000/api/StockMovement';
+  // Web ve masaüstü için localhost, Android emülatör için 10.0.2.2
+  static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:5000/api/StockMovement';
+    } else if (Platform.isAndroid) {
+      return 'http://10.0.2.2:5000/api/StockMovement';
+    } else {
+      return 'http://localhost:5000/api/StockMovement';
+    }
+  }
 
   /// Tüm stok hareketlerini getirir (en yeni tarih önce)
   static Future<List<StockMovement>> getStockMovements() async {

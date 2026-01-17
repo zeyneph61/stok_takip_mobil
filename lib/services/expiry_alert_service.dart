@@ -2,14 +2,21 @@
 
 import 'dart:convert';
 import 'dart:developer' as developer;
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import '../models/expiry_alert.dart';
 
 class ExpiryAlertService {
-  static String get baseUrl => kIsWeb 
-      ? 'http://localhost:5000/api/ExpiryAlert'
-      : 'http://10.0.2.2:5000/api/ExpiryAlert';
+  static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:5000/api/ExpiryAlert';
+    } else if (Platform.isAndroid) {
+      return 'http://10.0.2.2:5000/api/ExpiryAlert';
+    } else {
+      return 'http://localhost:5000/api/ExpiryAlert';
+    }
+  }
 
   /// Tüm son kullanma tarihi uyarılarını getirir
   static Future<List<ExpiryAlert>> getExpiryAlerts() async {
@@ -29,10 +36,14 @@ class ExpiryAlertService {
       );
 
       developer.log('Response status: ${response.statusCode}');
+      developer.log('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = jsonDecode(response.body);
         developer.log('Expiry alerts loaded: ${jsonData.length}');
+        if (jsonData.isNotEmpty) {
+          developer.log('First alert sample: ${jsonData.first}');
+        }
         return jsonData.map((json) => ExpiryAlert.fromJson(json)).toList();
       } else {
         throw Exception(

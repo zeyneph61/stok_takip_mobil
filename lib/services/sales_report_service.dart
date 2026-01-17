@@ -2,14 +2,21 @@
 
 import 'dart:convert';
 import 'dart:developer' as developer;
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import '../models/sales_report.dart';
 
 class SalesReportService {
-  static String get baseUrl => kIsWeb 
-      ? 'http://localhost:5000/api/SalesReport'
-      : 'http://10.0.2.2:5000/api/SalesReport';
+  static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:5000/api/SalesReport';
+    } else if (Platform.isAndroid) {
+      return 'http://10.0.2.2:5000/api/SalesReport';
+    } else {
+      return 'http://localhost:5000/api/SalesReport';
+    }
+  }
 
   /// Tüm satış raporlarını getirir
   static Future<List<SalesReport>> getSalesReports() async {

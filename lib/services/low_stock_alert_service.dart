@@ -2,14 +2,21 @@
 
 import 'dart:convert';
 import 'dart:developer' as developer;
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import '../models/low_stock_alert.dart';
 
 class LowStockAlertService {
-  static String get baseUrl => kIsWeb 
-      ? 'http://localhost:5000/api/LowStockAlert'
-      : 'http://10.0.2.2:5000/api/LowStockAlert';
+  static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:5000/api/LowStockAlert';
+    } else if (Platform.isAndroid) {
+      return 'http://10.0.2.2:5000/api/LowStockAlert';
+    } else {
+      return 'http://localhost:5000/api/LowStockAlert';
+    }
+  }
 
   /// Tüm düşük stok uyarılarını getirir
   static Future<List<LowStockAlert>> getLowStockAlerts() async {

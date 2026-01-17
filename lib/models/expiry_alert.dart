@@ -28,7 +28,7 @@ class ExpiryAlert {
       id: json['id'] as int,
       productId: json['productId'] as int,
       expiryDate: DateTime.parse(json['expiryDate'] as String),
-      daysUntilExpiry: json['daysUntilExpiry'] as int,
+      daysUntilExpiry: json['daysRemaining'] as int, // Backend'de daysRemaining olarak geliyor
       isResolved: json['isResolved'] as bool? ?? false,
       resolvedDate: json['resolvedDate'] != null 
           ? DateTime.parse(json['resolvedDate'] as String)

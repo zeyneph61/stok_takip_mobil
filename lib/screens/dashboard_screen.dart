@@ -38,11 +38,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _currentPage = widget.initialPage;
-    if (_currentPage == 'dashboard') {
-      _loadDashboardData();
-    } else {
-      _loadProducts();
-    }
+    // Her zaman hem products hem de dashboard stats yükle
+    _loadDashboardData();
   }
   
   Future<void> _loadDashboardData() async {
@@ -73,9 +70,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
 
     try {
-      final products = await ProductService.getProducts();
+      // Dashboard stats'i de yükle ki totalCategories olsun
+      final stats = await DashboardService.getDashboardStats();
       setState(() {
-        _products = products;
+        _dashboardStats = stats;
+        _products = stats.products;
         _isLoading = false;
       });
     } catch (e) {
@@ -161,6 +160,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       isLoading: _isLoading,
       error: _error,
       products: _products,
+      totalCategories: _dashboardStats?.totalCategories ?? 0,
+      lowStockCount: _dashboardStats?.lowStock ?? 0,
+      outOfStockCount: _dashboardStats?.outOfStock ?? 0,
       currentInventoryPage: _currentInventoryPage,
       totalPages: _totalPages,
       onRefresh: _loadProducts,

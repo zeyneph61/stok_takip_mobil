@@ -2,15 +2,23 @@
 
 import 'dart:convert';
 import 'dart:developer' as developer;
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import '../models/product.dart';
 
 class ProductService {
-  // Web için localhost, Android emülatör için 10.0.2.2
-  static String get baseUrl => kIsWeb 
-      ? 'http://localhost:5000/api/Product'
-      : 'http://10.0.2.2:5000/api/Product';
+  // Web ve masaüstü için localhost, Android emülatör için 10.0.2.2
+  static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:5000/api/Product';
+    } else if (Platform.isAndroid) {
+      return 'http://10.0.2.2:5000/api/Product';
+    } else {
+      // Windows, macOS, Linux için localhost
+      return 'http://localhost:5000/api/Product';
+    }
+  }
 
   static Future<List<Product>> getProducts() async {
     try {
